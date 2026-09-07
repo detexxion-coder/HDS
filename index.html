@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1f3864">
+<title>HDS · Hojas de Servicio</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HDS">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  :root{
+    --azul:#1f3864; --azul2:#2b4d8a; --gris:#5b6470; --linea:#d8dde3;
+    --fondo:#f4f6f8; --blanco:#fff; --ok:#2e6b3e; --alerta:#b23b2e;
+    --ambar:#8a6100;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       background:var(--fondo); color:#1a1f26; font-size:16px}
+  header{background:var(--azul); color:#fff; padding:14px 16px; position:sticky; top:0; z-index:10}
+  header h1{margin:0; font-size:17px; font-weight:600; letter-spacing:.2px}
+  header small{opacity:.75; font-size:12px}
+  nav{display:flex; background:var(--azul2); position:sticky; top:56px; z-index:10}
+  nav button{flex:1; background:none; border:0; color:#fff; padding:13px 4px; font-size:13px;
+             font-weight:600; opacity:.6; border-bottom:3px solid transparent}
+  nav button.on{opacity:1; border-bottom-color:#fff}
+  main{padding:14px 14px 90px}
+  .tarjeta{background:var(--blanco); border:1px solid var(--linea); border-radius:10px;
+           padding:14px; margin-bottom:12px}
+  .tarjeta h2{margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:.6px;
+              color:var(--gris)}
+  label{display:block; font-size:13px; font-weight:600; color:var(--gris); margin:12px 0 5px}
+  label:first-of-type{margin-top:0}
+  input,select,textarea{width:100%; padding:12px; font-size:16px; border:1px solid var(--linea);
+    border-radius:8px; background:#fff; font-family:inherit; color:inherit}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--azul2); border-color:var(--azul2)}
+  textarea{min-height:70px; resize:vertical}
+  .fila{display:flex; gap:10px}
+  .fila>div{flex:1}
+  .btn{display:block; width:100%; padding:15px; font-size:16px; font-weight:700; border:0;
+       border-radius:10px; background:var(--azul); color:#fff; margin-top:14px}
+  .btn.sec{background:#fff; color:var(--azul); border:2px solid var(--azul)}
+  .btn.chico{padding:10px; font-size:14px; margin-top:0}
+  .btn:disabled{opacity:.45}
+  .aviso{padding:10px 12px; border-radius:8px; font-size:13px; margin-top:10px; line-height:1.45}
+  .aviso.mal{background:#fdecea; color:var(--alerta); border:1px solid #f3c5bf}
+  .aviso.oj{background:#fff6e0; color:var(--ambar); border:1px solid #f0dcae}
+  .aviso.bien{background:#e9f5ec; color:var(--ok); border:1px solid #c2e2cb}
+  #firma{width:100%; height:190px; border:2px dashed var(--linea); border-radius:10px;
+         background:#fff; touch-action:none; display:block}
+  #firma.hay{border-style:solid; border-color:var(--ok)}
+  .pista{font-size:12px; color:var(--gris); margin-top:6px; line-height:1.4}
+  .item{background:#fff; border:1px solid var(--linea); border-radius:10px; padding:12px;
+        margin-bottom:10px; display:flex; gap:12px; align-items:center}
+  .item .txt{flex:1; min-width:0}
+  .item .eq{font-weight:700; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .item .meta{font-size:12px; color:var(--gris); margin-top:3px}
+  .pill{font-size:11px; font-weight:700; padding:4px 9px; border-radius:20px; white-space:nowrap}
+  .pill.f{background:#e9f5ec; color:var(--ok)}
+  .pill.p{background:#fdecea; color:var(--alerta)}
+  .vacio{text-align:center; color:var(--gris); padding:40px 20px; font-size:14px; line-height:1.5}
+  .contador{display:flex; gap:10px; margin-bottom:12px}
+  .contador div{flex:1; background:#fff; border:1px solid var(--linea); border-radius:10px;
+                padding:12px; text-align:center}
+  .contador .n{font-size:24px; font-weight:800; color:var(--azul)}
+  .contador .n.mal{color:var(--alerta)}
+  .contador .e{font-size:11px; color:var(--gris); text-transform:uppercase; letter-spacing:.5px}
+  dialog{border:0; border-radius:12px; padding:0; max-width:94vw; width:520px;
+         box-shadow:0 10px 40px rgba(0,0,0,.3)}
+  dialog::backdrop{background:rgba(0,0,0,.5)}
+  .dlg{padding:16px}
+  .dlg h3{margin:0 0 10px; font-size:16px}
+  #lienzoVale{width:100%; height:auto; border:1px solid var(--linea); border-radius:6px}
+  .sep{height:1px; background:var(--linea); margin:16px 0}
+  .casilla{display:flex; align-items:center; gap:12px; margin-top:14px;
+           padding:13px 14px; border:2px solid var(--linea); border-radius:10px;
+           background:#fff; cursor:pointer}
+  .casilla.on{border-color:var(--ambar); background:#fff8e8}
+  .casilla input{width:26px; height:26px; flex:0 0 auto; margin:0; cursor:pointer}
+  .casilla .txt{font-weight:700; font-size:15px}
+  .casilla .sub{font-size:12px; color:var(--gris); font-weight:400}
+  .lainas{width:100%; border-collapse:collapse; margin-top:6px}
+  .lainas th{background:#eef1f5; color:var(--gris); font-size:12px; font-weight:700;
+             padding:8px 4px; border:1px solid var(--linea)}
+  .lainas td{border:1px solid var(--linea); padding:5px}
+  .lainas input{text-align:center; padding:11px 4px; font-size:17px; font-weight:700;
+                border:0; border-radius:0}
+  .lainas input:focus{outline:2px solid var(--azul2)}
+  .solo-app{background:#f0f3f7; border-left:3px solid var(--azul2); padding:10px 12px;
+            border-radius:0 8px 8px 0; margin-top:14px}
+  .solo-app .nota{font-size:12px; color:var(--gris); line-height:1.4; margin-bottom:4px}
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:8px}
+  .sugerencias{margin-top:6px}
+  .sugerencia-item{background:#fff; border:1px solid var(--azul2); border-radius:8px;
+        padding:10px 12px; margin-top:6px; font-size:14.5px; font-weight:600;
+        color:var(--azul); cursor:pointer}
+  .chip{background:#eef1f5; color:var(--azul); border:1px solid var(--linea);
+        border-radius:20px; padding:7px 13px; font-size:13px; font-weight:600}
+  .chip.quitar{background:#fdecea; color:var(--alerta); border-color:#f3c5bf}
+  .catalogo-item{display:flex; align-items:center; gap:8px; background:#fff;
+        border:1px solid var(--linea); border-radius:8px; padding:9px 11px; margin-top:7px}
+  .catalogo-item span{flex:1; font-size:14px}
+  .catalogo-item button{background:#fdecea; color:var(--alerta); border:0; border-radius:6px;
+        padding:6px 10px; font-size:12px; font-weight:700}
+  .banner-edicion{background:#fff6e0; border:1px solid #f0dcae; border-radius:10px;
+        padding:12px 14px; margin-bottom:12px; display:flex; align-items:center; gap:10px}
+  .banner-edicion .txt{flex:1; font-size:13.5px; color:#7a5a1e; line-height:1.4}
+  .banner-edicion button{background:#fff; color:var(--ambar); border:2px solid var(--ambar);
+        border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:700; white-space:nowrap}
+  .miniatura-firma{max-width:220px; max-height:70px; display:block; margin-top:8px;
+        border:1px solid var(--linea); border-radius:6px; background:#fff}
+  .comentario-item{background:#f7f8fa; border:1px solid var(--linea); border-radius:8px;
+        padding:10px 12px; margin-bottom:8px}
+  .comentario-fecha{font-size:11px; color:var(--gris); font-weight:700; margin-bottom:4px}
+  .comentario-texto{font-size:13.5px; color:#1a1f26; line-height:1.4; white-space:pre-wrap}
+  .miniatura-comentario{max-width:240px; max-height:200px; display:block; margin-top:6px;
+        border:1px solid var(--linea); border-radius:6px; cursor:zoom-in}
+  @media print{
+    header,nav,.btn,.no-imp{display:none!important}
+    body{background:#fff}
+    main{padding:0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>HDS · Hojas de Servicio</h1>
+  <small id="subt">—</small>
+</header>
+
+<nav>
+  <button data-t="nuevo" class="on">NUEVO</button>
+  <button data-t="lista">MIS HOJAS</button>
+  <button data-t="ajustes">AJUSTES</button>
+</nav>
+
+<main>
+
+<!-- ================= NUEVO ================= -->
+<section id="t-nuevo">
+  <div id="avisoAlmacen"></div>
+  <div id="bannerEdicion"></div>
+
+  <div class="tarjeta">
+    <h2>Datos de la hoja</h2>
+    <div class="fila">
+      <div>
+        <label>Folio</label>
+        <input id="folio" readonly>
+      </div>
+      <div>
+        <label>Fecha</label>
+        <input id="fecha" type="date">
+      </div>
+    </div>
+    <div class="fila">
+      <div><label>Planta</label><input id="planta" placeholder="Ej. GUE"><div id="sugerenciasPlanta"></div></div>
+      <div><label>Área</label><input id="area" placeholder="Ej. HYP1"><div id="sugerenciasArea"></div></div>
+    </div>
+    <button class="btn sec chico" id="btnRepetirAnterior" type="button" style="margin-top:8px">
+      🔁 Repetir planta, área y técnico de la hoja anterior
+    </button>
+    <label>Téc. alineador</label>
+    <input id="tecnico">
+    <div class="fila">
+      <div><label>Hora inicio</label><input id="hini" type="time"></div>
+      <div><label>Hora final</label><input id="hfin" type="time"></div>
+    </div>
+    <button class="btn sec chico" id="btnAhoraIni" style="margin-top:8px">Marcar inicio ahora</button>
+    <button class="btn sec chico" id="btnAhoraFin" style="margin-top:8px">Marcar final ahora</button>
+    <div class="pista">La hora de inicio también se registra sola al tomar la foto de la
+      orden, más abajo — así no dependes de bajar las lecturas del aparato para saberla.</div>
+    <label class="casilla" id="cajaFuera" for="fuera">
+      <input type="checkbox" id="fuera">
+      <span>
+        <span class="txt">Servicio fuera de horario (FDH)</span><br>
+        <span class="sub">Se marca en la hoja y agrega FDH al reporte</span>
+      </span>
+    </label>
+
+    <label>Equipo</label>
+    <input id="equipo" placeholder="Motor extractor 2">
+    <label>Lainas utilizadas</label>
+    <table class="lainas">
+      <tr><th>2 x 2</th><th>3 x 3</th><th>4 x 4</th><th>5 x 5</th></tr>
+      <tr>
+        <td><input id="lai22" type="number" inputmode="numeric" min="0" placeholder="0"></td>
+        <td><input id="lai33" type="number" inputmode="numeric" min="0" placeholder="0"></td>
+        <td><input id="lai44" type="number" inputmode="numeric" min="0" placeholder="0"></td>
+        <td><input id="lai55" type="number" inputmode="numeric" min="0" placeholder="0"></td>
+      </tr>
+    </table>
+    <div class="pista">Cuantas pusiste de cada medida. Deja en blanco las que no uses.</div>
+
+    <label>Observaciones</label>
+    <textarea id="obs" placeholder="Lo que deba quedar asentado en la hoja"></textarea>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Solo para el reporte</h2>
+    <div class="solo-app">
+      <div class="nota">Esto <b>no aparece en la hoja</b> que firma el usuario. Viaja al control y al título del reporte.</div>
+    </div>
+    <label>Orden (OT)</label>
+    <input id="orden" inputmode="numeric" placeholder="2004223876">
+    <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap">
+      <button class="btn sec chico" id="btnLeerOrdenCamara" type="button">📷 Tomar foto</button>
+      <button class="btn sec chico" id="btnLeerOrdenGaleria" type="button">🖼️ De galería</button>
+    </div>
+    <input type="file" id="archOrdenCamara" accept="image/*" capture="environment" hidden>
+    <input type="file" id="archOrdenGaleria" accept="image/*" hidden>
+    <div id="avisoOcr"></div>
+    <div id="avisoOrden"></div>
+    <div class="fila">
+      <div>
+        <label>RPM</label>
+        <select id="rpm">
+          <option value="">—</option>
+          <option>900</option><option>1200</option><option selected>1800</option>
+          <option>3600</option><option>7000</option><option>10000</option>
+        </select>
+      </div>
+      <div>
+        <label>Resultado</label>
+        <select id="resultado">
+          <option>EXCELENTE</option><option>ACEPTABLE</option><option>DESALINEADO</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Firma del usuario</h2>
+    <label>Nombre de quien firma</label>
+    <input id="firmante" placeholder="Nombre completo">
+    <div id="sugerenciasFirmante"></div>
+    <div id="firmaPrevia"></div>
+    <label>Firma</label>
+    <canvas id="firma"></canvas>
+    <div class="pista">Que firme con el dedo dentro del recuadro.</div>
+    <div style="display:flex; gap:10px; margin-top:10px">
+      <button class="btn sec chico" id="btnFirmarGrande" type="button">🖊️ Pantalla completa</button>
+      <button class="btn sec chico" id="btnBorrarFirma" type="button">Borrar firma</button>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Comentarios</h2>
+    <div class="pista" style="margin-bottom:10px">
+      Solo quedan en este teléfono. No se mandan a la PC ni se suben a Drive.
+      <b>Se guardan hasta que le des a GUARDAR</b> más abajo — si sales de
+      esta pestaña sin guardar, se pierden.
+    </div>
+    <div id="listaComentariosNuevo"></div>
+    <textarea id="comentarioTextoNuevo" placeholder="Escribe una nota para ti o tu compañero…"
+              style="margin-top:10px"></textarea>
+    <div id="previewComentarioFotoNuevo" style="margin-top:8px"></div>
+    <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap">
+      <button class="btn sec chico" id="btnFotoComentarioCamaraNuevo" type="button">📷 Tomar foto</button>
+      <button class="btn sec chico" id="btnFotoComentarioGaleriaNuevo" type="button">🖼️ De galería</button>
+      <button class="btn chico" id="btnGuardarComentarioNuevo" type="button">Agregar comentario</button>
+    </div>
+    <input type="file" id="archComentarioFotoCamaraNuevo" accept="image/*" capture="environment" hidden>
+    <input type="file" id="archComentarioFotoGaleriaNuevo" accept="image/*" hidden>
+  </div>
+
+  <button class="btn" id="btnGuardar">GUARDAR HOJA</button>
+  <button class="btn sec" id="btnGuardarSin">Guardar sin firma (pendiente)</button>
+  <button class="btn sec" id="btnCancelarEdicion" hidden style="border-color:var(--alerta); color:var(--alerta)">Cancelar edición</button>
+</section>
+
+<!-- ================= LISTA ================= -->
+<section id="t-lista" hidden>
+  <div class="contador">
+    <div><div class="n" id="cTotal">0</div><div class="e">Hojas</div></div>
+    <div><div class="n" id="cFirm">0</div><div class="e">Firmados</div></div>
+    <div><div class="n mal" id="cPend">0</div><div class="e">Pendientes</div></div>
+  </div>
+  <button class="btn" id="btnSincronizar">SINCRONIZAR AHORA</button>
+  <div class="pista" style="margin:8px 0 16px" id="estadoSync">—</div>
+  <button class="btn sec" id="btnExportar">Exportar a un archivo (sin internet)</button>
+  <div class="pista" style="margin:8px 0 16px">
+    Genera un archivo con todas las hojas sin exportar. Lo mandas por Google Fotos,
+    Drive o correo, y en la PC lo sueltas en la carpeta <b>entradas/</b>.
+  </div>
+  <button class="btn sec chico" id="btnFiltroPendientes" type="button" style="margin-bottom:10px">
+    Ver solo pendientes
+  </button>
+  <div id="listaVales"></div>
+</section>
+
+<!-- ================= AJUSTES ================= -->
+<section id="t-ajustes" hidden>
+  <div class="tarjeta">
+    <h2>Tus datos</h2>
+    <label>Téc. alineador (se pone solo en cada vale)</label>
+    <input id="aTecnico">
+    <label>Letra de folio</label>
+    <input id="aPrefijo" maxlength="3" placeholder="U">
+    <div class="pista">Una letra por técnico, para que los folios no choquen entre compañeros: U-001, X-001.</div>
+    <label>Encabezado de la hoja</label>
+    <input id="aProveedor" placeholder="Proveedor 107933 Jose Marco Antonio Trejo Córdova">
+    <button class="btn" id="btnGuardarAjustes">Guardar ajustes</button>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Plantas</h2>
+    <div class="pista">Las que agregues aquí aparecen como opción en NUEVO, para elegir en vez de escribir.</div>
+    <div class="fila" style="margin-top:10px">
+      <div><input id="nuevaPlanta" placeholder="Ej. GUE"></div>
+    </div>
+    <button class="btn sec chico" id="btnAgregarPlanta" style="margin-top:8px">Agregar planta</button>
+    <div id="listaPlantas"></div>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Áreas</h2>
+    <div class="pista">Igual que las plantas: aparecen como opción al capturar una hoja.</div>
+    <div class="fila" style="margin-top:10px">
+      <div><input id="nuevaArea" placeholder="Ej. HYP1"></div>
+    </div>
+    <button class="btn sec chico" id="btnAgregarArea" style="margin-top:8px">Agregar área</button>
+    <div id="listaAreas"></div>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Sincronización automática</h2>
+    <div class="pista" style="margin-bottom:10px">
+      Con esto, cada hoja se sube sola a tu Google Drive y aparece en la PC sin
+      que muevas archivos. Si no hay señal, se manda cuando conectes.
+    </div>
+    <label>Dirección de sincronización</label>
+    <input id="aUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <label>Clave</label>
+    <input id="aClave" placeholder="la que pusiste en el código">
+    <button class="btn sec chico" id="btnProbarSync" style="margin-top:12px">Probar conexión</button>
+    <div id="avisoSync"></div>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Versión</h2>
+    <div class="pista" style="font-size:14px">
+      Esta app es la <b id="version">—</b><br>
+      Si Claude te pide saber qué versión traes, es este número.
+    </div>
+    <button class="btn sec chico" id="btnActualizar" style="margin-top:12px">Buscar actualización</button>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Respaldo</h2>
+    <div class="pista" style="margin-bottom:12px">
+      Todo se guarda dentro de este teléfono. Si borras los datos del navegador,
+      se pierde. Saca respaldo de vez en cuando.
+    </div>
+    <button class="btn sec chico" id="btnRespaldo">Descargar respaldo completo</button>
+    <button class="btn sec chico" id="btnRestaurar" style="margin-top:10px">Restaurar desde respaldo</button>
+    <input type="file" id="archRestaurar" accept=".json" hidden>
+  </div>
+</section>
+
+</main>
+
+<dialog id="dlgVale">
+  <div class="dlg">
+    <h3 id="dlgTitulo">Hoja de servicio</h3>
+    <canvas id="lienzoVale"></canvas>
+    <button class="btn" id="btnCompartir">Compartir / Guardar imagen</button>
+    <button class="btn sec chico" id="btnImprimir" style="margin-top:10px">Imprimir</button>
+    <button class="btn sec chico" id="btnEditarHoja" style="margin-top:10px">Editar esta hoja</button>
+    <button class="btn sec chico" id="btnCerrarDlg" style="margin-top:10px">Cerrar</button>
+
+    <div class="sep"></div>
+    <h3 style="margin:0 0 4px">Comentarios</h3>
+    <div class="pista" style="margin-bottom:10px">
+      Solo quedan en este teléfono. No se mandan a la PC ni se suben a Drive.
+    </div>
+    <div id="listaComentarios"></div>
+    <textarea id="comentarioTexto" placeholder="Escribe una nota para ti o tu compañero…"
+              style="margin-top:10px"></textarea>
+    <div id="previewComentarioFoto" style="margin-top:8px"></div>
+    <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap">
+      <button class="btn sec chico" id="btnFotoComentarioCamara" type="button">📷 Tomar foto</button>
+      <button class="btn sec chico" id="btnFotoComentarioGaleria" type="button">🖼️ De galería</button>
+      <button class="btn chico" id="btnGuardarComentario" type="button">Guardar comentario</button>
+    </div>
+    <input type="file" id="archComentarioFotoCamara" accept="image/*" capture="environment" hidden>
+    <input type="file" id="archComentarioFotoGaleria" accept="image/*" hidden>
+
+    <div class="sep"></div>
+    <button class="btn chico" id="btnBorrarHoja"
+            style="margin-top:18px; background:#fff; color:#b23b2e; border:2px solid #b23b2e">
+      Borrar esta hoja
+    </button>
+  </div>
+</dialog>
+
+<dialog id="dlgZoom" style="padding:0; background:#000; max-width:100vw; max-height:100vh;
+        width:100vw; height:100vh; margin:0; border:0">
+  <div style="position:relative; width:100%; height:100%; display:flex;
+              align-items:center; justify-content:center; background:#000">
+    <img id="imgZoom" style="max-width:100%; max-height:100%; object-fit:contain">
+    <button id="btnCerrarZoom" type="button" style="position:absolute; top:14px; right:14px;
+            background:rgba(255,255,255,.92); border:0; border-radius:50%; width:40px;
+            height:40px; font-size:20px; font-weight:700; color:#1a1f26">✕</button>
+    <button id="btnGuardarGaleria" type="button" style="position:absolute; bottom:24px;
+            left:50%; transform:translateX(-50%); background:rgba(255,255,255,.95);
+            border:0; border-radius:24px; padding:12px 20px; font-size:14px;
+            font-weight:700; color:#1a1f26">💾 Guardar en galería</button>
+  </div>
+</dialog>
+
+<dialog id="dlgFirmaGrande" style="padding:0; background:#fff; max-width:100vw; max-height:100vh;
+        width:100vw; height:100vh; margin:0; border:0">
+  <div style="width:100%; height:100%; display:flex; flex-direction:column; background:#fff">
+    <div style="display:flex; justify-content:space-between; align-items:center;
+                padding:14px 16px; border-bottom:1px solid #d8dde3">
+      <span style="font-weight:700; font-size:15px; color:#1f3864">Firma — gira el teléfono si quieres más espacio</span>
+      <button id="btnCerrarFirmaGrande" type="button" style="background:none; border:0;
+              font-size:24px; color:#5b6470; line-height:1">✕</button>
+    </div>
+    <canvas id="firmaGrande" style="flex:1; width:100%; touch-action:none; background:#fff"></canvas>
+    <div style="display:flex; gap:10px; padding:14px 16px; border-top:1px solid #d8dde3">
+      <button class="btn sec" id="btnBorrarFirmaGrande" type="button" style="flex:1">Borrar</button>
+      <button class="btn" id="btnUsarFirmaGrande" type="button" style="flex:1">Usar esta firma</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+
+/* ====================== almacenamiento ====================== */
+const LLAVE = "vales_alineacion_v1";
+let memoria = null;            // respaldo si no hay localStorage
+
+function hayAlmacen(){
+  try{ localStorage.setItem("__p","1"); localStorage.removeItem("__p"); return true; }
+  catch(e){ return false; }
+}
+const ALMACEN_OK = hayAlmacen();
+
+function cargar(){
+  const vacio = {vales:[], ajustes:{tecnico:"", prefijo:"U",
+                 proveedor:"Proveedor 107933 Jose Marco Antonio Trejo Córdova",
+                 urlSync:"", claveSync:"", plantas:[], areas:[]},
+                 firmantesFrecuentes:[], consecutivo:0};
+  try{
+    const s = ALMACEN_OK ? localStorage.getItem(LLAVE) : memoria;
+    if(!s) return vacio;
+    const d = JSON.parse(s);
+    const r = Object.assign(vacio, d);
+    r.ajustes = Object.assign({}, vacio.ajustes, d.ajustes || {});
+    if(!Array.isArray(r.ajustes.plantas)) r.ajustes.plantas = [];
+    if(!Array.isArray(r.ajustes.areas)) r.ajustes.areas = [];
+    if(!Array.isArray(r.firmantesFrecuentes)) r.firmantesFrecuentes = [];
+    // version vieja: traia una sola "planta mas frecuente" en texto libre
+    if(d.ajustes && d.ajustes.planta && !r.ajustes.plantas.includes(d.ajustes.planta)){
+      r.ajustes.plantas.unshift(d.ajustes.planta);
+    }
+    return r;
+  }catch(e){ return vacio; }
+}
+function guardar(){
+  const s = JSON.stringify(datos);
+  try{
+    if(ALMACEN_OK) localStorage.setItem(LLAVE, s); else memoria = s;
+    return true;
+  }catch(e){
+    // casi siempre es que ya no cabe mas en el telefono (localStorage lleno)
+    return false;
+  }
+}
+
+let datos = cargar();
+
+/* ====================== lainas ====================== */
+// Medidas que maneja. Si un dia usan otra, se agrega aqui y en la tabla
+// del formulario (busca class="lainas").
+const LAINAS = [
+  {id:"22", etiqueta:"2 x 2"},
+  {id:"33", etiqueta:"3 x 3"},
+  {id:"44", etiqueta:"4 x 4"},
+  {id:"55", etiqueta:"5 x 5"},
+];
+
+/* ====================== utilidades ====================== */
+const $ = id => document.getElementById(id);
+// OJO: nunca usar toISOString() para "la fecha de hoy". toISOString()
+// convierte a UTC, y Mexico esta detras de UTC - a partir de las 6-7pm
+// hora local, en UTC ya es el dia siguiente. Eso hacia que cualquier hoja
+// llenada por la tarde/noche saliera fechada un dia adelante, sin ningun
+// aviso. hoy() usa la fecha LOCAL del telefono, la misma que ve el
+// usuario en su reloj, sin pasar por UTC en ningun momento.
+const hoy = () => {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+};
+const ahora = () => {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mi}`;
+};
+
+function fechaCorta(iso){
+  if(!iso) return "";
+  const [a,m,d] = iso.split("-");
+  return `${d}/${m}/${a.slice(2)}`;
+}
+function siguienteFolio(){
+  const p = (datos.ajustes.prefijo || "U").toUpperCase();
+  return `${p}-${String(datos.consecutivo + 1).padStart(3,"0")}`;
+}
+function escapar(t){
+  const d = document.createElement("div"); d.textContent = t == null ? "" : t;
+  return d.innerHTML;
+}
+
+/* ====================== catalogos: plantas y areas ====================== */
+// El catalogo se administra en AJUSTES (agregar/quitar). Al escribir en
+// Planta o Area aqui en NUEVO, se sugiere de ese mismo catalogo por las
+// letras que se van tecleando - igual que con el nombre de quien firma.
+function agregarValorCatalogo(lista, valor){
+  const v = valor.trim();
+  if(!v) return null;
+  const yaEsta = lista.find(x => x.toLowerCase() === v.toLowerCase());
+  if(yaEsta) return yaEsta;
+  lista.push(v);
+  return v;
+}
+
+function renderListaCatalogo(contenedorId, lista, alBorrar){
+  const cont = $(contenedorId);
+  if(!lista.length){
+    cont.innerHTML = '<div class="pista" style="margin-top:8px">Todavía no agregas ninguna.</div>';
+    return;
+  }
+  cont.innerHTML = lista.map((v, i) =>
+    `<div class="catalogo-item"><span>${escapar(v)}</span>
+     <button type="button" data-i="${i}">Quitar</button></div>`).join("");
+  cont.querySelectorAll("button").forEach(b => {
+    b.onclick = () => alBorrar(parseInt(b.dataset.i, 10));
+  });
+}
+
+function renderCatalogoAjustes(){
+  renderListaCatalogo("listaPlantas", datos.ajustes.plantas, i => {
+    datos.ajustes.plantas.splice(i, 1);
+    guardar();
+    renderCatalogoAjustes();
+  });
+  renderListaCatalogo("listaAreas", datos.ajustes.areas, i => {
+    datos.ajustes.areas.splice(i, 1);
+    guardar();
+    renderCatalogoAjustes();
+  });
+}
+
+$("btnAgregarPlanta").onclick = () => {
+  const agregado = agregarValorCatalogo(datos.ajustes.plantas, $("nuevaPlanta").value);
+  if(!agregado){ alert("Escribe un nombre."); return; }
+  $("nuevaPlanta").value = "";
+  guardar();
+  renderCatalogoAjustes();
+};
+$("btnAgregarArea").onclick = () => {
+  const agregado = agregarValorCatalogo(datos.ajustes.areas, $("nuevaArea").value);
+  if(!agregado){ alert("Escribe un nombre."); return; }
+  $("nuevaArea").value = "";
+  guardar();
+  renderCatalogoAjustes();
+};
+
+// Si al guardar una hoja se escribio una planta o area que no esta en el
+// catalogo, se ofrece agregarla para la proxima vez - sin obligar a nadie
+// a pasar por AJUSTES primero.
+function ofrecerAgregarAlCatalogo(valor, lista, etiqueta){
+  if(!valor) return;
+  const yaEsta = lista.find(x => x.toLowerCase() === valor.toLowerCase());
+  if(yaEsta) return;
+  if(confirm(`"${valor}" no está en tu catálogo de ${etiqueta}. ` +
+             `¿Lo agrego para que la próxima vez aparezca sugerido?`)){
+    agregarValorCatalogo(lista, valor);
+    guardar();
+  }
+}
+
+/* ====================== sugerencias al escribir ====================== */
+// Un mismo mecanismo para Planta, Area y Firmante: al escribir, se filtra
+// una lista (el catalogo o el historial de firmantes) por las letras ya
+// tecleadas, y tocar una sugerencia completa el campo.
+function activarSugerencias(idInput, idContenedor, obtenerLista){
+  const input = $(idInput), cont = $(idContenedor);
+  function render(){
+    const texto = input.value.trim().toLowerCase();
+    if(!texto){ cont.innerHTML = ""; return; }
+    const encontrados = obtenerLista().filter(n =>
+      n.toLowerCase().startsWith(texto) && n.toLowerCase() !== texto);
+    if(!encontrados.length){ cont.innerHTML = ""; return; }
+    cont.className = "sugerencias";
+    cont.innerHTML = encontrados.slice(0, 5).map(n =>
+      `<div class="sugerencia-item">${escapar(n)}</div>`).join("");
+    cont.querySelectorAll(".sugerencia-item").forEach((el, i) => {
+      // mousedown (no click) para que el toque se registre ANTES de que el
+      // campo de texto pierda el foco y la lista se oculte
+      el.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        input.value = encontrados[i];
+        cont.innerHTML = "";
+      });
+    });
+  }
+  input.addEventListener("input", render);
+  input.addEventListener("blur", () => {
+    setTimeout(() => { cont.innerHTML = ""; }, 150);
+  });
+}
+activarSugerencias("planta", "sugerenciasPlanta", () => datos.ajustes.plantas);
+activarSugerencias("area", "sugerenciasArea", () => datos.ajustes.areas);
+
+/* ====================== firmantes frecuentes ====================== */
+// Para no volver a escribir el nombre completo cada vez: en cuanto se
+// empieza a escribir, se buscan en TODO el historial (no solo los ultimos)
+// los nombres que empiezan igual, y se ofrecen para completar con un toque.
+function registrarFirmante(nombre){
+  const n = nombre.trim();
+  if(!n) return;
+  const lista = datos.firmantesFrecuentes.filter(
+    x => x.toLowerCase() !== n.toLowerCase());
+  lista.unshift(n);
+  datos.firmantesFrecuentes = lista.slice(0, 40);
+}
+activarSugerencias("firmante", "sugerenciasFirmante", () => datos.firmantesFrecuentes);
+
+/* ====================== repetir la hoja anterior ====================== */
+// Guarda planta/area/tecnico de la ultima hoja guardada en esta sesion,
+// para no volver a escribirlos en la siguiente cuando son varios equipos
+// seguidos en el mismo lugar.
+let ultimaHoja = null;
+
+$("btnRepetirAnterior").onclick = () => {
+  if(!ultimaHoja){
+    alert("Todavía no has guardado ninguna hoja en esta sesión.");
+    return;
+  }
+  $("planta").value = ultimaHoja.planta || "";
+  $("area").value = ultimaHoja.area || "";
+  $("tecnico").value = ultimaHoja.tecnico || "";
+};
+
+/* ====================== navegación ====================== */
+function mostrarTab(t){
+  document.querySelectorAll("nav button").forEach(x=>{
+    x.classList.toggle("on", x.dataset.t === t);
+  });
+  ["nuevo","lista","ajustes"].forEach(x=>{ $("t-"+x).hidden = (x !== t); });
+  if(t === "lista"){ pintarLista(); actualizarEstadoSync(); }
+  if(t === "nuevo") refrescarFechaSiHaceFalta();
+  window.scrollTo(0, 0);
+}
+
+// La fecha por defecto se pone al abrir la pestaña o al guardar. Si el
+// telefono se queda con la app abierta de un dia para otro (muy comun,
+// nadie la cierra), esa fecha se queda vieja sin que nadie se de cuenta.
+// Esto la vuelve a poner al dia CADA VEZ que se regresa a la pestaña o se
+// vuelve a abrir la app - pero solo si la persona no la toco a proposito
+// (por ejemplo, para llenar una hoja atrasada de otro dia).
+let fechaEsPredeterminada = true;
+$("fecha").addEventListener("input", () => { fechaEsPredeterminada = false; });
+
+function refrescarFechaSiHaceFalta(){
+  if(edicionIndice !== null) return;   // editando una hoja vieja: no tocar
+  if(!fechaEsPredeterminada) return;   // la persona ya escogio su fecha
+  const actual = hoy();
+  if($("fecha").value !== actual) $("fecha").value = actual;
+}
+document.addEventListener("visibilitychange", () => {
+  if(!document.hidden) refrescarFechaSiHaceFalta();
+});
+
+// Los comentarios agregados en la pestaña NUEVO (y cualquier otro dato de
+// una hoja en curso) no quedan guardados de verdad hasta que se le da a
+// GUARDAR. Si se sale de la pestaña sin guardar, se pierden en silencio;
+// esto avisa antes de que eso pase.
+function hayCambiosSinGuardar(){
+  if(edicionIndice !== null) return true;
+  return !!($("equipo").value.trim() || comentariosEnProgreso.length ||
+            $("obs").value.trim() || $("orden").value.trim() ||
+            $("firmante").value.trim() || hayFirma);
+}
+
+document.querySelectorAll("nav button").forEach(b=>{
+  b.onclick = () => {
+    const enNuevo = !$("t-nuevo").hidden;
+    if(enNuevo && b.dataset.t !== "nuevo" && hayCambiosSinGuardar()){
+      const seguro = confirm("Tienes datos sin guardar en esta hoja " +
+        "(incluidos los comentarios que hayas agregado). Si sales ahora " +
+        "se pierden.\n\n¿Salir de todos modos?");
+      if(!seguro) return;
+      edicionIndice = null;
+      limpiarFormulario();   // descarta equipo, comentarios y todo lo demas
+    }
+    mostrarTab(b.dataset.t);
+  };
+});
+
+/* ====================== firma ====================== */
+const lienzo = $("firma");
+const ctx = lienzo.getContext("2d");
+let trazando = false, hayFirma = false;
+
+function ajustarLienzo(){
+  const r = lienzo.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const previo = hayFirma ? lienzo.toDataURL() : null;
+  lienzo.width = Math.round(r.width * dpr);
+  lienzo.height = Math.round(r.height * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.strokeStyle = "#111";
+  if(previo){
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img,0,0,r.width,r.height);
+    img.src = previo;
+  }
+}
+function pos(e){
+  const r = lienzo.getBoundingClientRect();
+  const p = e.touches ? e.touches[0] : e;
+  return {x:p.clientX - r.left, y:p.clientY - r.top};
+}
+function iniciar(e){ e.preventDefault(); trazando = true; const p = pos(e);
+  ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+function mover(e){ if(!trazando) return; e.preventDefault(); const p = pos(e);
+  ctx.lineTo(p.x,p.y); ctx.stroke(); hayFirma = true; lienzo.classList.add("hay"); }
+function soltar(){ trazando = false; }
+
+lienzo.addEventListener("touchstart", iniciar, {passive:false});
+lienzo.addEventListener("touchmove", mover, {passive:false});
+lienzo.addEventListener("touchend", soltar);
+lienzo.addEventListener("mousedown", iniciar);
+lienzo.addEventListener("mousemove", mover);
+window.addEventListener("mouseup", soltar);
+
+$("btnBorrarFirma").onclick = () => {
+  ctx.clearRect(0,0,lienzo.width,lienzo.height);
+  hayFirma = false; lienzo.classList.remove("hay");
+};
+
+/* ====================== firma en pantalla completa ====================== */
+// Un lienzo aparte, mucho mas grande, para cuando el recuadro chico se queda
+// corto. Al terminar, el trazo se copia al lienzo chico de siempre, asi que
+// todo lo demas (guardar la hoja, etc.) sigue funcionando igual sin tocarse.
+const lienzoGrande = $("firmaGrande");
+const ctxGrande = lienzoGrande.getContext("2d");
+let trazandoGrande = false, hayTrazoGrande = false;
+
+function ajustarLienzoGrande(){
+  const r = lienzoGrande.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const previo = hayTrazoGrande ? lienzoGrande.toDataURL() : null;
+  lienzoGrande.width = Math.round(r.width * dpr);
+  lienzoGrande.height = Math.round(r.height * dpr);
+  ctxGrande.setTransform(dpr,0,0,dpr,0,0);
+  ctxGrande.lineWidth = 3; ctxGrande.lineCap = "round"; ctxGrande.lineJoin = "round";
+  ctxGrande.strokeStyle = "#111";
+  if(previo){
+    const img = new Image();
+    img.onload = () => ctxGrande.drawImage(img, 0, 0, r.width, r.height);
+    img.src = previo;
+  }
+}
+function posGrande(e){
+  const r = lienzoGrande.getBoundingClientRect();
+  const p = e.touches ? e.touches[0] : e;
+  return {x:p.clientX - r.left, y:p.clientY - r.top};
+}
+function iniciarGrande(e){ e.preventDefault(); trazandoGrande = true; const p = posGrande(e);
+  ctxGrande.beginPath(); ctxGrande.moveTo(p.x,p.y); }
+function moverGrande(e){ if(!trazandoGrande) return; e.preventDefault(); const p = posGrande(e);
+  ctxGrande.lineTo(p.x,p.y); ctxGrande.stroke(); hayTrazoGrande = true; }
+function soltarGrande(){ trazandoGrande = false; }
+
+lienzoGrande.addEventListener("touchstart", iniciarGrande, {passive:false});
+lienzoGrande.addEventListener("touchmove", moverGrande, {passive:false});
+lienzoGrande.addEventListener("touchend", soltarGrande);
+lienzoGrande.addEventListener("mousedown", iniciarGrande);
+lienzoGrande.addEventListener("mousemove", moverGrande);
+window.addEventListener("mouseup", soltarGrande);
+
+$("btnFirmarGrande").onclick = () => {
+  $("dlgFirmaGrande").showModal();
+  requestAnimationFrame(() => {
+    ajustarLienzoGrande();
+    // si ya habia algo firmado en el recuadro chico, se trae como punto de
+    // partida, centrado, para poder completarlo o corregirlo en grande
+    if(hayFirma){
+      const img = new Image();
+      img.onload = () => {
+        const r = lienzoGrande.getBoundingClientRect();
+        const esc = Math.min(r.width / img.width, r.height / img.height) * 0.7;
+        const w = img.width * esc, h = img.height * esc;
+        ctxGrande.drawImage(img, (r.width - w) / 2, (r.height - h) / 2, w, h);
+        hayTrazoGrande = true;
+      };
+      img.src = lienzo.toDataURL();
+    } else {
+      hayTrazoGrande = false;
+    }
+  });
+};
+$("btnCerrarFirmaGrande").onclick = () => $("dlgFirmaGrande").close();
+$("btnBorrarFirmaGrande").onclick = () => {
+  ctxGrande.clearRect(0, 0, lienzoGrande.width, lienzoGrande.height);
+  hayTrazoGrande = false;
+};
+$("btnUsarFirmaGrande").onclick = () => {
+  if(!hayTrazoGrande){
+    alert("Todavía no has firmado. Dibuja dentro del recuadro, o cierra sin usarla.");
+    return;
+  }
+  const r = lienzo.getBoundingClientRect();
+  ctx.clearRect(0, 0, lienzo.width, lienzo.height);
+  ctx.drawImage(lienzoGrande, 0, 0, lienzoGrande.width, lienzoGrande.height, 0, 0, r.width, r.height);
+  hayFirma = true;
+  lienzo.classList.add("hay");
+  $("dlgFirmaGrande").close();
+};
+// si giran el telefono con el visor abierto, el lienzo se reacomoda solo
+// sin perder lo que ya llevan dibujado
+window.addEventListener("resize", () => {
+  if($("dlgFirmaGrande").open) ajustarLienzoGrande();
+});
+window.addEventListener("orientationchange", () => {
+  if($("dlgFirmaGrande").open) setTimeout(ajustarLienzoGrande, 300);
+});
+
+/* ====================== dibujo del vale ====================== */
+const LOGO_B64 = "data:image/jpeg;base64,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";
+
+function dibujarVale(v, destino){
+ return new Promise(resolve => {
+  const W = 1000, H = 586;
+  // ESCALA sube la resolucion real del PNG sin tener que tocar ninguna
+  // coordenada de las que ya estaban ajustadas: el lienzo se crea mas
+  // grande y se escala el contexto, asi que todo el dibujo de abajo se ve
+  // igual de bien colocado, nomas que con muchos mas pixeles de verdad.
+  const ESCALA = 3;
+  destino.width = W * ESCALA; destino.height = H * ESCALA;
+  const c = destino.getContext("2d");
+  c.scale(ESCALA, ESCALA);
+  c.fillStyle = "#fff"; c.fillRect(0,0,W,H);
+  c.strokeStyle = "#000"; c.fillStyle = "#000";
+
+  const marco = 24;
+  c.lineWidth = 2;
+  c.strokeRect(marco, marco, W - marco*2, H - marco*2);
+
+  const pintar = () => {
+    // encabezado
+    c.font = "500 17px Georgia, serif";
+    c.fillText(v.proveedor || "", 170, 62);
+    c.font = "italic 30px Georgia, serif";
+    c.fillText("Servicio de Alineación", 300, 100);
+
+    c.font = "500 18px Georgia, serif";
+    const campo = (etq, val, x, y, largo) => {
+      c.fillText(etq, x, y);
+      const dx = x + c.measureText(etq).width + 8;
+      c.beginPath(); c.moveTo(dx, y + 5); c.lineTo(x + largo, y + 5);
+      c.lineWidth = 1; c.stroke();
+      c.font = "500 20px Georgia, serif";
+      c.fillText(val || "", dx + 6, y);
+      c.font = "500 18px Georgia, serif";
+    };
+
+    campo("Fecha:", fechaCorta(v.fecha), 640, 140, 330);
+
+    // casilla de fuera de horario, debajo de la fecha
+    (function(){
+      const x = 640, y = 162, lado = 17;
+      c.lineWidth = 1.6;
+      c.strokeRect(x, y, lado, lado);
+      if(v.fuera){
+        c.lineWidth = 2.6;
+        c.beginPath();
+        c.moveTo(x + 3, y + 3); c.lineTo(x + lado - 3, y + lado - 3);
+        c.moveTo(x + lado - 3, y + 3); c.lineTo(x + 3, y + lado - 3);
+        c.stroke();
+        c.font = "bold 17px Georgia, serif";
+      } else {
+        c.font = "500 16px Georgia, serif";
+      }
+      c.fillText("Servicio fuera de horario", x + lado + 10, y + 14);
+      c.font = "500 18px Georgia, serif";
+      c.lineWidth = 1;
+    })();
+    campo("Orden:", v.orden || "", 60, 182, 300);
+    campo("Planta:", v.planta, 60, 226, 300);
+    campo("Área:", v.area, 400, 226, 320);
+    campo("Téc. Alineador:", v.tecnico, 60, 276, 340);
+    campo("Hora inicio:", v.hini, 420, 276, 250);
+    campo("Hora final:", v.hfin, 700, 276, 270);
+
+    c.font = "500 18px Georgia, serif";
+    c.fillText("Equipo:", 60, 331);
+    c.font = "500 22px Georgia, serif";
+    c.fillText(v.equipo || "", 145, 333);
+    c.beginPath(); c.moveTo(145, 339); c.lineTo(940, 339); c.lineWidth = 1; c.stroke();
+
+    c.font = "500 18px Georgia, serif";
+    c.fillText("Observaciones:", 60, 381);
+    c.font = "500 17px Georgia, serif";
+    const obs = (v.obs || "").split("\n").join(" ");
+    let linea = "", y = 381;
+    obs.split(" ").forEach(p => {
+      const t = linea ? linea + " " + p : p;
+      if(c.measureText(t).width > 700){ c.fillText(linea, 215, y); linea = p; y += 24; }
+      else linea = t;
+    });
+    if(linea) c.fillText(linea, 215, y);
+    c.beginPath(); c.moveTo(215, 389); c.lineTo(940, 389); c.lineWidth = 1; c.stroke();
+
+    // tabla de lainas, a la izquierda de la firma
+    (function(){
+      const x0 = 60, y0 = 418, anchoCol = 92, altoFila = 26;
+      c.font = "500 15px Georgia, serif";
+      c.fillText("Lainas utilizadas:", x0, y0 - 8);
+
+      c.lineWidth = 1;
+      c.font = "500 14px Georgia, serif";
+      LAINAS.forEach((m, i) => {
+        const x = x0 + i * anchoCol;
+        // encabezado
+        c.strokeRect(x, y0, anchoCol, altoFila);
+        c.textAlign = "center";
+        c.fillText(m.etiqueta, x + anchoCol / 2, y0 + 18);
+        // cantidad
+        c.strokeRect(x, y0 + altoFila, anchoCol, altoFila);
+        const n = (v.lainas && v.lainas[m.etiqueta]) ? String(v.lainas[m.etiqueta]) : "-";
+        c.font = "bold 17px Georgia, serif";
+        c.fillText(n, x + anchoCol / 2, y0 + altoFila + 19);
+        c.font = "500 14px Georgia, serif";
+      });
+      c.textAlign = "left";
+    })();
+
+    // firma
+    c.font = "500 18px Georgia, serif";
+    c.fillText("Usuario: Nombre y Firma:", 60, 504);
+    c.beginPath(); c.moveTo(300, 512); c.lineTo(940, 512); c.lineWidth = 1.5; c.stroke();
+    c.font = "500 19px Georgia, serif";
+    c.fillText(v.firmante || "", 310, 504);
+
+    // pie
+    c.font = "500 13px Georgia, serif";
+    c.fillStyle = "#555";
+    c.fillText("Folio " + (v.folio || ""), 60, 538);
+    if(v.firma) c.fillText("Firmado digitalmente el " + fechaCorta(v.fecha), 300, 538);
+    c.fillStyle = "#000";
+  };
+
+  const cargar = (src) => new Promise(ok => {
+    if(!src){ ok(null); return; }
+    let listo = false;
+    const terminar = (v) => { if(!listo){ listo = true; ok(v); } };
+    // seguro: si una imagen no carga ni falla, no dejamos colgado el dibujo
+    setTimeout(() => terminar(null), 4000);
+    const im = new Image();
+    im.onload = () => terminar(im);
+    im.onerror = () => terminar(null);
+    im.src = src;
+  });
+
+  Promise.all([cargar(LOGO_B64), cargar(v.firma)]).then(([lg, fr]) => {
+    if(lg) c.drawImage(lg, 55, 40, 100, 79);
+    pintar();
+    if(fr) c.drawImage(fr, 620, 422, 300, 84);
+    resolve(destino);
+  });
+ });
+}
+
+/* ====================== orden repetida ====================== */
+$("orden").addEventListener("input", () => {
+  const o = $("orden").value.trim();
+  const caja = $("avisoOrden");
+  if(!o){ caja.innerHTML = ""; return; }
+  const previos = datos.vales.filter(v => (v.orden || "").trim() === o);
+  if(previos.length){
+    const p = previos[previos.length - 1];
+    caja.innerHTML = `<div class="aviso oj"><b>Esa orden ya la usaste.</b><br>
+      ${escapar(p.equipo)} — ${fechaCorta(p.fecha)} (folio ${escapar(p.folio)}).<br>
+      Si es retrabajo, pide número nuevo antes de subir el reporte.</div>`;
+  } else caja.innerHTML = "";
+});
+
+/* ====================== leer la orden de una foto ====================== */
+// Usa un lector de texto (Tesseract.js) que se descarga la primera vez que
+// se usa este boton. Despues de eso el navegador ya lo trae en cache.
+// Nunca llena el campo sola: siempre muestra lo que encontro para que se
+// confirme, porque una foto de un papel puede salir borrosa o chueca.
+let _tesseractCargando = null;
+function cargarLectorTexto(){
+  if(window.Tesseract) return Promise.resolve();
+  if(_tesseractCargando) return _tesseractCargando;
+  _tesseractCargando = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("no se pudo descargar el lector de texto"));
+    document.head.appendChild(s);
+  });
+  return _tesseractCargando;
+}
+
+function ordenesEnTexto(texto){
+  // Los numeros de orden que se han visto son de 10 digitos y empiezan con
+  // 20. Primero se busca ese patron; si no aparece, se cae a cualquier
+  // corrida larga de digitos (menos exacto, pero mejor que nada).
+  const finos = texto.match(/\b20\d{8}\b/g) || [];
+  if(finos.length) return [...new Set(finos)];
+  const gruesos = (texto.match(/\d{6,12}/g) || [])
+    .filter(n => n.length >= 6)
+    .sort((a, b) => b.length - a.length);
+  return [...new Set(gruesos)].slice(0, 5);
+}
+
+$("btnLeerOrdenCamara").onclick = () => $("archOrdenCamara").click();
+$("btnLeerOrdenGaleria").onclick = () => $("archOrdenGaleria").click();
+async function procesarFotoOrden(e){
+  const archivo = e.target.files[0];
+  e.target.value = "";
+  if(!archivo) return;
+
+  // Tomar la foto de la orden es lo primero que se hace en campo, antes de
+  // conectar el aparato. Se aprovecha ese momento para registrar la hora de
+  // inicio, que de otro modo solo se sabe bajando las lecturas del aparato.
+  // Es una aproximacion (la foto se toma un poco antes de empezar a alinear
+  // de verdad), pero es mucho mejor que no tener ninguna hora.
+  // No se hace si se esta editando una hoja vieja, para no poner la hora de
+  // ahorita en un trabajo de otro dia.
+  let notaHora = "";
+  if(edicionIndice === null && !$("hini").value){
+    $("hini").value = ahora();
+    notaHora = `<div class="aviso bien">Hora de inicio registrada: ` +
+      `<b>${escapar($("hini").value)}</b> (al tomar esta foto).</div>`;
+  }
+
+  const caja = $("avisoOcr");
+  caja.innerHTML = notaHora + '<div class="aviso oj">Leyendo la foto… puede tardar unos segundos.</div>';
+
+  const conBotonGuardar = (html) => html +
+    '<button type="button" class="btn sec chico" id="btnGuardarFotoOrden" ' +
+    'style="margin-top:8px">💾 Guardar esta foto en tu galería</button>';
+  const activarBotonGuardar = () => {
+    const b = $("btnGuardarFotoOrden");
+    if(b) b.onclick = () => guardarImagen("orden_" + Date.now() + ".jpg", archivo);
+  };
+
+  try{
+    await cargarLectorTexto();
+    const resultado = await Tesseract.recognize(archivo, "eng");
+    const texto = (resultado && resultado.data && resultado.data.text) || "";
+    const candidatos = ordenesEnTexto(texto);
+    if(!candidatos.length){
+      caja.innerHTML = conBotonGuardar(notaHora +
+        '<div class="aviso mal">No encontré ningún número en la foto. ' +
+        'Prueba con más luz y que el papel se vea derecho, o escríbelo a mano.</div>');
+      activarBotonGuardar();
+      return;
+    }
+    const principal = candidatos[0];
+    caja.innerHTML = conBotonGuardar(notaHora + `<div class="aviso oj">
+      Encontré <b>${escapar(principal)}</b>. Revisa que sea correcto antes de seguir.
+      ${candidatos.length > 1 ? "<br>También vi: " +
+        candidatos.slice(1).map(escapar).join(", ") : ""}
+    </div>`);
+    activarBotonGuardar();
+    $("orden").value = principal;
+    $("orden").dispatchEvent(new Event("input", {bubbles:true}));
+  }catch(err){
+    caja.innerHTML = conBotonGuardar(notaHora + '<div class="aviso mal">No se pudo leer la foto (' +
+      escapar(err && err.message ? err.message : String(err)) +
+      '). Necesitas internet la primera vez que uses este botón. ' +
+      'Mientras tanto, escribe la orden a mano.</div>');
+    activarBotonGuardar();
+  }
+}
+$("archOrdenCamara").onchange = procesarFotoOrden;
+$("archOrdenGaleria").onchange = procesarFotoOrden;
+
+/* ====================== guardar ====================== */
+let edicionIndice = null;   // indice en datos.vales que se esta editando, o null
+
+function nuevoVale(conFirma){
+  const equipo = $("equipo").value.trim();
+  if(!equipo){ alert("Falta el equipo."); return; }
+  const editando = edicionIndice !== null;
+  const original = editando ? datos.vales[edicionIndice] : null;
+  if(!editando && conFirma && !hayFirma){
+    alert("No hay firma. Usa el otro botón si la vas a conseguir después.");
+    return;
+  }
+
+  // en edicion: si se firmo de nuevo se usa esa firma; si no, se conserva
+  // la que ya tenia (puede ser null si nunca la tuvo)
+  let firma = original ? original.firma : null;
+  if(hayFirma) firma = lienzo.toDataURL("image/png");
+
+  const v = {
+    folio: editando ? original.folio : $("folio").value,
+    fecha: $("fecha").value || hoy(),
+    planta: $("planta").value,
+    area: $("area").value,
+    tecnico: $("tecnico").value.trim(),
+    hini: $("hini").value, hfin: $("hfin").value,
+    equipo: equipo,
+    fuera: $("fuera").checked,
+    obs: $("obs").value.trim(),
+    lainas: LAINAS.reduce((ac, m) => {
+      const n = parseInt($("lai" + m.id).value, 10);
+      if(n > 0) ac[m.etiqueta] = n;
+      return ac;
+    }, {}),
+    firmante: $("firmante").value.trim(),
+    firma: firma,
+    orden: $("orden").value.trim(),
+    rpm: $("rpm").value,
+    resultado: $("resultado").value,
+    proveedor: datos.ajustes.proveedor,
+    creado: editando ? original.creado : new Date().toISOString(),
+    exportado: editando ? false : false,
+    sincronizado: editando ? false : undefined,
+    // los comentarios son privados del telefono; comentariosEnProgreso trae
+    // los que ya tenia (si se esta editando) mas los que se agregaron ahora
+    comentarios: comentariosEnProgreso.slice(),
+  };
+  if(editando){
+    v.editado = new Date().toISOString();
+    datos.vales[edicionIndice] = v;
+  } else {
+    datos.vales.push(v);
+    datos.consecutivo += 1;
+  }
+  if(v.firmante) registrarFirmante(v.firmante);
+  ultimaHoja = {planta: v.planta, area: v.area, tecnico: v.tecnico};
+  ofrecerAgregarAlCatalogo(v.planta, datos.ajustes.plantas, "plantas");
+  ofrecerAgregarAlCatalogo(v.area, datos.ajustes.areas, "áreas");
+  guardar();
+  const folioGuardado = v.folio, quedoFirmada = !!v.firma;
+  const fueEdicion = editando;
+  edicionIndice = null;
+  limpiarFormulario();
+  actualizarEstadoSync();
+  if(fueEdicion){
+    alert("Hoja " + folioGuardado + " actualizada.");
+    mostrarTab("lista");
+  } else {
+    alert("Hoja " + folioGuardado + " guardada" + (quedoFirmada ? " y firmada." : " SIN FIRMA."));
+  }
+  if(datos.ajustes.urlSync) sincronizar(true);
+}
+$("btnGuardar").onclick = () => nuevoVale(true);
+$("btnGuardarSin").onclick = () => {
+  if(edicionIndice !== null){ nuevoVale(false); return; }
+  if(confirm("¿Guardar sin firma? Va a quedar en la lista de pendientes.")) nuevoVale(false);
+};
+$("btnCancelarEdicion").onclick = () => {
+  if(confirm("¿Cancelar la edición? No se guarda nada de lo que cambiaste.")){
+    edicionIndice = null;
+    limpiarFormulario();
+    mostrarTab("lista");
+  }
+};
+
+function limpiarFormulario(){
+  ["equipo","obs","firmante","orden"].forEach(k => $(k).value = "");
+  LAINAS.forEach(m => $("lai" + m.id).value = "");
+  $("fuera").checked = false;
+  $("cajaFuera").classList.remove("on");
+  $("hini").value = ""; $("hfin").value = "";
+  $("avisoOrden").innerHTML = "";
+  $("avisoOcr").innerHTML = "";
+  $("firmaPrevia").innerHTML = "";
+  $("btnBorrarFirma").click();
+  $("folio").value = edicionIndice !== null ? datos.vales[edicionIndice].folio : siguienteFolio();
+  $("fecha").value = hoy();
+  fechaEsPredeterminada = true;
+  $("planta").value = "";
+  $("area").value = "";
+  $("tecnico").value = datos.ajustes.tecnico || "";
+  $("sugerenciasFirmante").innerHTML = "";
+  renderBannerEdicion();
+  comentariosEnProgreso = [];
+  fotoComentarioPendienteNuevo = null;
+  $("comentarioTextoNuevo").value = "";
+  $("previewComentarioFotoNuevo").innerHTML = "";
+  renderComentariosNuevo();
+  $("btnGuardar").textContent = "GUARDAR HOJA";
+  $("btnGuardarSin").hidden = false;
+  $("btnCancelarEdicion").hidden = true;
+  actualizarSubtitulo();
+}
+
+/* ====================== lista ====================== */
+let soloPendientes = false;
+
+function pintarLista(){
+  const cont = $("listaVales");
+  const total = datos.vales.length;
+  const firm = datos.vales.filter(v => v.firma).length;
+  $("cTotal").textContent = total;
+  $("cFirm").textContent = firm;
+  $("cPend").textContent = total - firm;
+
+  $("btnFiltroPendientes").textContent = soloPendientes
+    ? "Ver todas" : "Ver solo pendientes";
+
+  if(!total){ cont.innerHTML = '<div class="vacio">Todavía no hay hojas.<br>Levanta la primera en la pestaña NUEVO.</div>'; return; }
+
+  // pendientes: la mas vieja primero, para que ninguna se quede atras.
+  // el resto: la mas reciente primero, como siempre.
+  let lista = datos.vales.map((v, i) => ({v, i}));
+  if(soloPendientes){
+    lista = lista.filter(x => !x.v.firma);
+    lista.sort((a, b) => new Date(a.v.creado || 0) - new Date(b.v.creado || 0));
+  } else {
+    lista.reverse();
+  }
+
+  if(!lista.length){
+    cont.innerHTML = '<div class="vacio">No hay hojas pendientes de firma.</div>';
+    return;
+  }
+
+  cont.innerHTML = lista.map(({v, i}) => {
+    return `<div class="item" data-i="${i}">
+      <div class="txt">
+        <div class="eq">${escapar(v.equipo)}</div>
+        <div class="meta">${escapar(v.folio)} · ${fechaCorta(v.fecha)} · ${escapar(v.planta || "")}
+          ${v.orden ? " · OT " + escapar(v.orden) : ""}${v.fuera ? " · FUERA DE HORARIO" : ""}${v.exportado ? " · enviado" : ""}</div>
+      </div>
+      <span class="pill ${v.firma ? "f" : "p"}">${v.firma ? "FIRMADO" : "PENDIENTE"}</span>
+    </div>`;
+  }).join("");
+
+  cont.querySelectorAll(".item").forEach(el => {
+    el.onclick = () => abrirVale(parseInt(el.dataset.i,10));
+  });
+}
+$("btnFiltroPendientes").onclick = () => {
+  soloPendientes = !soloPendientes;
+  pintarLista();
+};
+
+let valeAbierto = null;
+function abrirVale(i){
+  valeAbierto = i;
+  const v = datos.vales[i];
+  $("dlgTitulo").textContent = v.folio + " — " + v.equipo;
+  dibujarVale(v, $("lienzoVale")).then(() => {});
+  $("comentarioTexto").value = "";
+  fotoComentarioPendiente = null;
+  $("previewComentarioFoto").innerHTML = "";
+  renderComentarios();
+  $("dlgVale").showModal();
+}
+$("btnCerrarDlg").onclick = () => $("dlgVale").close();
+
+/* ====================== comentarios privados ====================== */
+// Viven solo en este telefono: nunca se incluyen al sincronizar ni al
+// exportar (ver sinComentarios(), usada en esos dos caminos).
+//
+// Hay dos formas de agregarlos:
+//  - Desde el dialogo de una hoja ya guardada (MIS HOJAS): se guardan al
+//    toque, sin esperar a nada mas.
+//  - Desde la pestaña NUEVO, sea armando una hoja o editando una: se van
+//    juntando en comentariosEnProgreso y quedan fijos hasta que se le de a
+//    GUARDAR (igual que cualquier otro campo del formulario).
+let fotoComentarioPendiente = null;       // el del dialogo
+let fotoComentarioPendienteNuevo = null;  // el de la pestaña NUEVO
+let comentariosEnProgreso = [];           // los de la pestaña NUEVO
+
+function sinComentarios(v){
+  const copia = Object.assign({}, v);
+  delete copia.comentarios;
+  return copia;
+}
+
+function comprimirImagen(archivo, maxLado, calidad){
+  maxLado = maxLado || 900; calidad = calidad || 0.6;
+  return new Promise((resolve, reject) => {
+    const lector = new FileReader();
+    lector.onerror = () => reject(new Error("no se pudo leer la imagen"));
+    lector.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("no se pudo procesar la imagen"));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w >= h && w > maxLado){ h = Math.round(h * maxLado / w); w = maxLado; }
+        else if(h > w && h > maxLado){ w = Math.round(w * maxLado / h); h = maxLado; }
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL("image/jpeg", calidad));
+      };
+      img.src = lector.result;
+    };
+    lector.readAsDataURL(archivo);
+  });
+}
+
+function htmlComentarios(lista){
+  if(!lista || !lista.length){
+    return '<div class="pista">Todavía no hay comentarios en esta hoja.</div>';
+  }
+  return lista.slice().reverse().map(c => {
+    const f = new Date(c.fecha);
+    const fechaTxt = isNaN(f) ? "" : f.toLocaleString("es-MX", {
+      day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit"});
+    return `<div class="comentario-item">
+      <div class="comentario-fecha">${escapar(fechaTxt)}</div>
+      ${c.texto ? `<div class="comentario-texto">${escapar(c.texto)}</div>` : ""}
+      ${c.foto ? `<img class="miniatura-comentario" src="${c.foto}">` : ""}
+    </div>`;
+  }).join("");
+}
+
+function renderComentarios(){
+  const v = datos.vales[valeAbierto];
+  $("listaComentarios").innerHTML = v ? htmlComentarios(v.comentarios || []) : "";
+}
+function renderComentariosNuevo(){
+  $("listaComentariosNuevo").innerHTML = htmlComentarios(comentariosEnProgreso);
+}
+
+// Conecta un par de botones (camara / galeria) de un formulario de
+// comentario con su vista previa. alListo(dataUrlOrNull) recibe la foto ya
+// comprimida, o null si se quita.
+function conectarFotoComentario(sufijo, alListo){
+  const btnCam = $("btnFotoComentarioCamara" + sufijo);
+  const archCam = $("archComentarioFotoCamara" + sufijo);
+  const btnGal = $("btnFotoComentarioGaleria" + sufijo);
+  const archGal = $("archComentarioFotoGaleria" + sufijo);
+  const preview = $("previewComentarioFoto" + sufijo);
+
+  btnCam.onclick = () => archCam.click();
+  btnGal.onclick = () => archGal.click();
+
+  async function procesar(e){
+    const archivo = e.target.files[0];
+    e.target.value = "";
+    if(!archivo) return;
+    try{
+      const dataUrl = await comprimirImagen(archivo);
+      preview.innerHTML =
+        `<img class="miniatura-comentario" src="${dataUrl}">` +
+        `<button type="button" class="btn sec chico" style="margin-top:6px">Quitar foto</button>`;
+      preview.querySelector("button").onclick = () => {
+        alListo(null);
+        preview.innerHTML = "";
+      };
+      alListo(dataUrl);
+    }catch(err){
+      alert("No se pudo usar esa foto. Intenta con otra.");
+    }
+  }
+  archCam.onchange = procesar;
+  archGal.onchange = procesar;
+}
+
+conectarFotoComentario("", (dataUrl) => { fotoComentarioPendiente = dataUrl; });
+conectarFotoComentario("Nuevo", (dataUrl) => { fotoComentarioPendienteNuevo = dataUrl; });
+
+$("btnGuardarComentario").onclick = () => {
+  const v = datos.vales[valeAbierto];
+  if(!v) return;
+  const texto = $("comentarioTexto").value.trim();
+  if(!texto && !fotoComentarioPendiente){
+    alert("Escribe algo o agrega una foto.");
+    return;
+  }
+  if(!Array.isArray(v.comentarios)) v.comentarios = [];
+  v.comentarios.push({
+    fecha: new Date().toISOString(),
+    texto: texto,
+    foto: fotoComentarioPendiente,
+  });
+  if(!guardar()){
+    v.comentarios.pop();
+    alert("No se pudo guardar: parece que ya no hay espacio libre en el " +
+          "teléfono.\n\nBorra fotos de comentarios viejos, o hojas que ya " +
+          "no necesites, y vuelve a intentar.");
+    return;
+  }
+  $("comentarioTexto").value = "";
+  fotoComentarioPendiente = null;
+  $("previewComentarioFoto").innerHTML = "";
+  renderComentarios();
+};
+
+$("btnGuardarComentarioNuevo").onclick = () => {
+  const texto = $("comentarioTextoNuevo").value.trim();
+  if(!texto && !fotoComentarioPendienteNuevo){
+    alert("Escribe algo o agrega una foto.");
+    return;
+  }
+  comentariosEnProgreso.push({
+    fecha: new Date().toISOString(),
+    texto: texto,
+    foto: fotoComentarioPendienteNuevo,
+  });
+  $("comentarioTextoNuevo").value = "";
+  fotoComentarioPendienteNuevo = null;
+  $("previewComentarioFotoNuevo").innerHTML = "";
+  renderComentariosNuevo();
+};
+
+/* ====================== guardar una foto en la galeria ====================== */
+// Los navegadores no dejan que una pagina guarde archivos en la galeria del
+// telefono sin que la persona lo autorice cada vez - es una proteccion de
+// privacidad. Esto abre el menu nativo de compartir/guardar de Android o
+// iPhone; ahi la persona elige "Guardar imagen" o "Guardar en Fotos". Si el
+// telefono no ofrece ese menu, se descarga el archivo como respaldo.
+function dataUrlABlob(dataUrl){
+  const partes = dataUrl.split(",");
+  const mime = (partes[0].match(/data:(.*?);base64/) || [, "image/jpeg"])[1];
+  const bin = atob(partes[1]);
+  const bytes = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], {type: mime});
+}
+
+async function guardarImagen(nombre, archivoOBlob){
+  const arch = archivoOBlob instanceof File
+    ? archivoOBlob
+    : new File([archivoOBlob], nombre, {type: archivoOBlob.type || "image/jpeg"});
+  if(navigator.canShare && navigator.canShare({files:[arch]})){
+    try{
+      await navigator.share({files:[arch], title:"Guardar foto"});
+      return true;
+    }catch(e){
+      if(e && e.name === "AbortError") return false;   // la persona cancelo
+    }
+  }
+  const url = URL.createObjectURL(arch);
+  const a = document.createElement("a");
+  a.href = url; a.download = nombre; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  return true;
+}
+
+/* ====================== zoom de fotos ====================== */
+// La pagina bloquea el pellizco-para-zoom en general (asi se ve mas como
+// app), asi que al abrir una foto grande se afloja momentaneamente esa
+// restriccion y se restaura al cerrar.
+const metaViewport = document.querySelector('meta[name="viewport"]');
+const VIEWPORT_NORMAL = metaViewport ? metaViewport.getAttribute("content") : "";
+const VIEWPORT_ZOOM = "width=device-width, initial-scale=1";
+
+function abrirZoom(src){
+  $("imgZoom").src = src;
+  if(metaViewport) metaViewport.setAttribute("content", VIEWPORT_ZOOM);
+  $("dlgZoom").showModal();
+}
+function cerrarZoom(){
+  $("dlgZoom").close();
+  if(metaViewport) metaViewport.setAttribute("content", VIEWPORT_NORMAL);
+}
+$("btnCerrarZoom").onclick = cerrarZoom;
+$("btnGuardarGaleria").onclick = () => {
+  const src = $("imgZoom").src;
+  if(!src) return;
+  guardarImagen("comentario_" + Date.now() + ".jpg", dataUrlABlob(src));
+};
+$("dlgZoom").addEventListener("click", (e) => { if(e.target.id === "dlgZoom") cerrarZoom(); });
+document.addEventListener("click", (e) => {
+  const img = e.target.closest(".miniatura-comentario");
+  if(img) abrirZoom(img.src);
+});
+
+function renderBannerEdicion(){
+  const cont = $("bannerEdicion");
+  if(edicionIndice === null){ cont.innerHTML = ""; return; }
+  const v = datos.vales[edicionIndice];
+  let aviso = "";
+  if(v.fecha && v.fecha !== hoy()){
+    aviso = `<div class="banner-edicion" style="background:#fff6e0; border-color:#f0dcae">
+      <div class="txt">
+        <b>⚠️ Esta hoja dice ${escapar(fechaCorta(v.fecha))}</b>, pero hoy es
+        ${escapar(fechaCorta(hoy()))}.<br>
+        Si el trabajo se hizo hoy (por ejemplo, empezaste la hoja un día y la
+        terminaste otro), corrige la fecha antes de guardar.
+      </div>
+    </div>`;
+  }
+  cont.innerHTML = aviso + `<div class="banner-edicion">
+    <div class="txt"><b>Editando la hoja ${escapar(v.folio)}</b><br>
+      Cambia lo que haga falta y dale a guardar.</div>
+  </div>`;
+}
+
+$("btnEditarHoja").onclick = () => {
+  const v = datos.vales[valeAbierto];
+  if(!v) return;
+  edicionIndice = valeAbierto;
+  $("dlgVale").close();
+
+  $("folio").value = v.folio;
+  $("fecha").value = v.fecha || hoy();
+  fechaEsPredeterminada = false;   // es la fecha de una hoja ya existente, nunca se auto-corrige
+  $("planta").value = v.planta || "";
+  $("area").value = v.area || "";
+  $("tecnico").value = v.tecnico || "";
+  $("hini").value = v.hini || "";
+  $("hfin").value = v.hfin || "";
+  $("fuera").checked = !!v.fuera;
+  $("cajaFuera").classList.toggle("on", !!v.fuera);
+  $("equipo").value = v.equipo || "";
+  LAINAS.forEach(m => {
+    $("lai" + m.id).value = (v.lainas && v.lainas[m.etiqueta]) || "";
+  });
+  $("obs").value = v.obs || "";
+  $("orden").value = v.orden || "";
+  $("rpm").value = v.rpm || "1800";
+  $("resultado").value = v.resultado || "EXCELENTE";
+  $("firmante").value = v.firmante || "";
+  $("sugerenciasFirmante").innerHTML = "";
+  $("btnBorrarFirma").click();   // limpia el lienzo; la firma vieja se conserva aparte
+  $("firmaPrevia").innerHTML = v.firma
+    ? '<div class="pista">Ya tiene firma. Si no dibujas una nueva abajo, se conserva la actual.</div>' +
+      `<img class="miniatura-firma" src="${v.firma}">`
+    : '<div class="pista">Esta hoja no tenía firma. Puedes firmarla ahora si ya la tienes.</div>';
+
+  // los comentarios existentes pasan a la pestaña NUEVO para poder seguir
+  // agregando ahi; se confirman hasta que se le de a GUARDAR CAMBIOS
+  comentariosEnProgreso = (v.comentarios || []).slice();
+  fotoComentarioPendienteNuevo = null;
+  $("comentarioTextoNuevo").value = "";
+  $("previewComentarioFotoNuevo").innerHTML = "";
+  renderComentariosNuevo();
+
+  $("btnGuardar").hidden = false;
+  $("btnGuardar").textContent = "GUARDAR CAMBIOS";
+  $("btnGuardarSin").hidden = true;
+  $("btnCancelarEdicion").hidden = false;
+
+  renderBannerEdicion();
+  mostrarTab("nuevo");
+};
+
+$("btnBorrarHoja").onclick = () => {
+  const v = datos.vales[valeAbierto];
+  if(!v) return;
+
+  let aviso = "¿Borrar la hoja " + v.folio + "?\n\n" + (v.equipo || "") +
+              "\n\nEsto no se puede deshacer.";
+  if(v.firma){
+    aviso += "\n\nOJO: esta hoja SI tiene firma del usuario.";
+  }
+  if(v.sincronizado){
+    aviso += "\n\nYa se subio a Drive. Esa copia hay que borrarla aparte " +
+             "desde la computadora, y si ya la importaste, tambien el " +
+             "renglon del control.";
+  }
+  if(!confirm(aviso)) return;
+
+  // segunda confirmacion solo si esta firmada: es un documento
+  if(v.firma && !confirm("Es una hoja firmada. ¿Seguro?")) return;
+
+  datos.vales.splice(valeAbierto, 1);
+  valeAbierto = null;
+  guardar();
+  $("dlgVale").close();
+  pintarLista();
+  actualizarEstadoSync();
+  actualizarSubtitulo();
+};
+$("btnImprimir").onclick = () => window.print();
+
+$("btnCompartir").onclick = async () => {
+  const v = datos.vales[valeAbierto];
+  const lz = $("lienzoVale");
+  lz.toBlob(async blob => {
+    const arch = new File([blob], `HDS_${v.folio}_${v.equipo.replace(/\s+/g,"_")}.png`, {type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[arch]})){
+      try{ await navigator.share({files:[arch], title:"HDS " + v.folio}); return; }catch(e){}
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = arch.name; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  }, "image/png");
+};
+
+/* ====================== exportar ====================== */
+function descargar(nombre, texto){
+  const b = new Blob([texto], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b); a.download = nombre; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+
+$("btnExportar").onclick = async () => {
+  const pendientes = datos.vales.filter(v => !v.exportado);
+  if(!pendientes.length){ alert("No hay hojas nuevas por exportar."); return; }
+  const lz = document.createElement("canvas");
+  const conImagen = [];
+  for(const v of pendientes){
+    await dibujarVale(v, lz);
+    conImagen.push(Object.assign({}, sinComentarios(v), {valePng: lz.toDataURL("image/png")}));
+  }
+  const paquete = {version:1, generado:new Date().toISOString(), vales:conImagen};
+  const texto = JSON.stringify(paquete);
+  const nombre = `HDS_${hoy()}_${pendientes.length}.json`;
+
+  const arch = new File([texto], nombre, {type:"application/json"});
+  let compartido = false, motivo = "";
+  if(!window.isSecureContext){
+    motivo = "la app se abrió desde un archivo, no desde su dirección de internet";
+  } else if(!(navigator.canShare && navigator.canShare({files:[arch]}))){
+    motivo = "este navegador no permite compartir archivos";
+  } else {
+    try{
+      await navigator.share({files:[arch], title:"Hojas de servicio para la PC"});
+      compartido = true;
+    }catch(e){
+      motivo = (e && e.name === "AbortError") ? "cancelaste el compartir"
+                                              : "el compartir no funcionó";
+    }
+  }
+  if(!compartido){
+    descargar(nombre, texto);
+    alert("No se abrió el menú de compartir (" + motivo + ").\n\n" +
+          "El archivo se descargó en la carpeta Descargas del teléfono:\n\n" +
+          nombre + "\n\n" +
+          "Muévelo a la carpeta entradas/ de tu PC.");
+  } else {
+    alert("Listo: se compartió " + nombre);
+  }
+
+  if(confirm(`¿Marcar esas ${pendientes.length} hojas como enviadas?`)){
+    pendientes.forEach(v => v.exportado = true);
+    guardar(); pintarLista();
+  }
+};
+
+/* ====================== ajustes y respaldo ====================== */
+$("btnGuardarAjustes").onclick = () => {
+  datos.ajustes.tecnico = $("aTecnico").value.trim();
+  datos.ajustes.prefijo = ($("aPrefijo").value.trim() || "U").toUpperCase();
+  datos.ajustes.proveedor = $("aProveedor").value.trim();
+  datos.ajustes.urlSync = $("aUrl").value.trim();
+  datos.ajustes.claveSync = $("aClave").value.trim();
+  guardar(); limpiarFormulario(); actualizarEstadoSync();
+  alert("Ajustes guardados.");
+};
+$("btnRespaldo").onclick = () => descargar(`respaldo_HDS_${hoy()}.json`, JSON.stringify(datos));
+$("btnRestaurar").onclick = () => $("archRestaurar").click();
+$("archRestaurar").onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const d = JSON.parse(r.result);
+      if(!d.vales) throw new Error("formato");
+      if(confirm(`El respaldo trae ${d.vales.length} hojas. ¿Reemplazar lo que hay ahora?`)){
+        datos = d; guardar(); limpiarFormulario(); pintarLista();
+        alert("Restaurado.");
+      }
+    }catch(err){ alert("Ese archivo no es un respaldo válido."); }
+  };
+  r.readAsText(f);
+};
+
+/* ====================== sincronización ====================== */
+function pendientesSync(){ return datos.vales.filter(v => !v.sincronizado); }
+
+function actualizarEstadoSync(){
+  const el = $("estadoSync"); if(!el) return;
+  const n = pendientesSync().length;
+  if(!datos.ajustes.urlSync){
+    el.innerHTML = "Sin configurar. Entra a AJUSTES si quieres que las hojas se " +
+                   "suban solas, o usa el botón de abajo para exportar a un archivo.";
+  } else if(n === 0){
+    el.innerHTML = "Todo subido. No hay nada pendiente.";
+  } else {
+    el.innerHTML = "<b>" + n + " hoja(s) por subir.</b> Se mandan solas al tener internet.";
+  }
+}
+
+async function conImagenes(lista){
+  const lz = document.createElement("canvas");
+  const out = [];
+  for(const v of lista){
+    await dibujarVale(v, lz);
+    out.push(Object.assign({}, sinComentarios(v), {valePng: lz.toDataURL("image/png")}));
+  }
+  return out;
+}
+
+async function sincronizar(silencioso){
+  const url = (datos.ajustes.urlSync || "").trim();
+  const clave = (datos.ajustes.claveSync || "").trim();
+  if(!url || !clave){
+    if(!silencioso) alert("Falta configurar la sincronización en AJUSTES.");
+    return false;
+  }
+  if(!navigator.onLine){
+    if(!silencioso) alert("No hay internet.\n\nLas hojas se van a subir solas en cuanto conectes.");
+    return false;
+  }
+  const pend = pendientesSync();
+  if(!pend.length){
+    if(!silencioso) alert("Ya está todo subido.");
+    return true;
+  }
+  if(!silencioso) $("btnSincronizar").disabled = true;
+  try{
+    const paquete = {clave: clave, hojas: await conImagenes(pend)};
+    const r = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(paquete)
+    });
+    const res = await r.json();
+    if(!res.ok) throw new Error(res.error || "respuesta inesperada");
+    const subidas = new Set(res.guardadas || []);
+    pend.forEach(v => { if(subidas.has(v.folio)){ v.sincronizado = true; v.exportado = true; } });
+    guardar(); pintarLista(); actualizarEstadoSync(); actualizarSubtitulo();
+    if(!silencioso) alert("Listo: se subieron " + subidas.size + " hoja(s).");
+    return true;
+  }catch(e){
+    if(!silencioso){
+      alert("No se pudo subir.\n\n" + (e && e.message ? e.message : e) +
+            "\n\nLas hojas siguen guardadas aquí y se reintenta después.");
+    }
+    return false;
+  }finally{
+    $("btnSincronizar").disabled = false;
+  }
+}
+
+$("btnSincronizar").onclick = () => sincronizar(false);
+
+$("btnProbarSync").onclick = async () => {
+  const url = $("aUrl").value.trim();
+  const caja = $("avisoSync");
+  if(!url){ caja.innerHTML = '<div class="aviso mal">Falta la dirección.</div>'; return; }
+  caja.innerHTML = '<div class="aviso oj">Probando…</div>';
+  try{
+    const r = await fetch(url, {method:"GET"});
+    const res = await r.json();
+    caja.innerHTML = res && res.ok
+      ? '<div class="aviso bien">Conectó bien. Guarda los ajustes.</div>'
+      : '<div class="aviso mal">Contestó, pero no como se esperaba.</div>';
+  }catch(e){
+    caja.innerHTML = '<div class="aviso mal">No conectó. Revisa que la dirección ' +
+      'termine en <b>/exec</b> y que al publicarla hayas puesto acceso para ' +
+      '<b>cualquier persona</b>.</div>';
+  }
+};
+
+// reintenta solo al recuperar señal
+window.addEventListener("online", () => sincronizar(true));
+
+/* ====================== version ====================== */
+const VERSION = "v21 · 7-sep-2026";
+$("version").textContent = VERSION;
+
+$("btnActualizar").onclick = async () => {
+  if(!navigator.onLine){ alert("No hay internet. Conéctate y vuelve a intentar."); return; }
+  try{
+    if("serviceWorker" in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if(window.caches){
+      const llaves = await caches.keys();
+      await Promise.all(llaves.map(k => caches.delete(k)));
+    }
+    alert("Listo. Se va a recargar la app.\n\nTus hojas NO se borran.");
+    location.reload(true);
+  }catch(e){
+    alert("No se pudo. Cierra la app por completo y vuelve a abrirla con internet.");
+  }
+};
+
+/* ====================== arranque ====================== */
+function actualizarSubtitulo(){
+  const p = datos.vales.filter(v => !v.firma).length;
+  $("subt").textContent = datos.ajustes.tecnico
+    ? `${datos.ajustes.tecnico}${p ? " · " + p + " sin firma" : ""}`
+    : "Configura tus datos en AJUSTES";
+}
+$("fuera").addEventListener("change", () => {
+  $("cajaFuera").classList.toggle("on", $("fuera").checked);
+});
+
+$("btnAhoraIni").onclick = () => { $("hini").value = ahora(); };
+$("btnAhoraFin").onclick = () => { $("hfin").value = ahora(); };
+
+$("aTecnico").value = datos.ajustes.tecnico;
+$("aPrefijo").value = datos.ajustes.prefijo;
+$("aProveedor").value = datos.ajustes.proveedor;
+$("aUrl").value = datos.ajustes.urlSync || "";
+$("aClave").value = datos.ajustes.claveSync || "";
+renderCatalogoAjustes();
+
+if(!ALMACEN_OK){
+  $("avisoAlmacen").innerHTML = '<div class="aviso mal"><b>Ojo:</b> este navegador no está guardando datos. ' +
+    'Descarga el archivo y ábrelo desde tu teléfono, no desde una vista previa.</div>';
+}
+
+// funciona sin internet una vez cargada
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+
+limpiarFormulario();
+actualizarEstadoSync();
+if(datos.ajustes.urlSync) sincronizar(true);
+ajustarLienzo();
+window.addEventListener("resize", ajustarLienzo);
+window.addEventListener("orientationchange", () => setTimeout(ajustarLienzo, 300));
+</script>
+</body>
+</html>
